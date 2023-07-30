@@ -27,8 +27,7 @@ public class StockMarket extends CommonPlugin{
         super.onEnable();
         this.plugin = this;
         SerializeUtil.plugin = this;
-        loadConfigs();
-        hikari = getDataSource("StockMarket");
+        hikari = getDataSource();
 
         try (Connection connection = hikari.getConnection()) {
             String[] create = {

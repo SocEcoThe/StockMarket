@@ -8,9 +8,12 @@ import org.bukkit.event.Listener;
 
 import java.io.IOException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -28,7 +31,7 @@ public abstract class CommonPlugin extends JavaPlugin {
 
     protected void registerListener(Listener listener) {
         // 注册监听器
-        getServer().getPluginManager().registerEvents(listener, this);
+        // getServer().getPluginManager().registerEvents(listener, this);
     }
 
     protected void registerCommand(CommonCommandExecutor executor) {
@@ -46,23 +49,15 @@ public abstract class CommonPlugin extends JavaPlugin {
         }
     }
 
-    protected HikariDataSource getDataSource(String name) {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to find JDBC driver", e);
+    protected HikariDataSource getDataSource() {
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("MultiCurrency");
+        if (plugin instanceof CommonPlugin) {
+            CommonPlugin corePlugin = (CommonPlugin) plugin;
+            HikariDataSource dataSource = corePlugin.getDataSource();
+            return dataSource;
+        }else {
+            throw new RuntimeException("CommonPlugin not found or not the right type");
         }
-    
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(this.getConfig().getString(name + ".jdbcUrl"));
-        config.setUsername(this.getConfig().getString(name + ".username"));
-        config.setPassword(this.getConfig().getString(name + ".password"));
-        config.addDataSourceProperty("cachePrepStmts", this.getConfig().getBoolean(name + ".cachePrepStmts", true));
-        config.addDataSourceProperty("prepStmtCacheSize", this.getConfig().getInt(name + ".prepStmtCacheSize", 250));
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", this.getConfig().getInt(name + ".prepStmtCacheSqlLimit", 2048));
-        config.setAutoCommit(false);
-        return new HikariDataSource(config);
     }
 
     public void saveConfig(Class<?> configClass) {
