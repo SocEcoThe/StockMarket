@@ -8,11 +8,9 @@ import org.bukkit.event.Listener;
 
 import java.io.IOException;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -46,17 +44,6 @@ public abstract class CommonPlugin extends JavaPlugin {
                     System.out.println("Command not found: " + command);
                 }
             }
-        }
-    }
-
-    protected HikariDataSource getDataSource() {
-        Plugin plugin = Bukkit.getPluginManager().getPlugin("MultiCurrency");
-        if (plugin instanceof CommonPlugin) {
-            CommonPlugin corePlugin = (CommonPlugin) plugin;
-            HikariDataSource dataSource = corePlugin.getDataSource();
-            return dataSource;
-        }else {
-            throw new RuntimeException("CommonPlugin not found or not the right type");
         }
     }
 

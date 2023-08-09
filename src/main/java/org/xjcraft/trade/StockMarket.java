@@ -12,6 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.xjcraft.CommonPlugin;
 import org.xjcraft.trade.config.Config;
 import org.xjcraft.trade.utils.SerializeUtil;
+import com.zjyl1994.minecraftplugin.multicurrency.MultiCurrencyPlugin;
 
 /**
  * Created by Ree on 2016/1/7.
@@ -27,7 +28,7 @@ public class StockMarket extends CommonPlugin{
         super.onEnable();
         this.plugin = this;
         SerializeUtil.plugin = this;
-        hikari = getDataSource();
+        hikari = MultiCurrencyPlugin.getInstance().getHikari();
 
         try (Connection connection = hikari.getConnection()) {
             String[] create = {
@@ -102,9 +103,5 @@ public class StockMarket extends CommonPlugin{
     public void onDisable() {
         super.onDisable();
         getLogger().info("StockMarket has been disabled");
-    }
-
-    public DataSource getHikari() {
-        return hikari;
     }
 }
