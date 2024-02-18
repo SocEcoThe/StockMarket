@@ -1,8 +1,5 @@
 package org.xjcraft.trade.utils;
 
-
-import net.md_5.bungee.api.plugin.Plugin;
-
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -155,19 +152,19 @@ public class StringUtil {
                 arg.equalsIgnoreCase("ok");
     }
 
-    public static void printStackTrace(Plugin plugin) {
-        print(plugin, "————>Start Tracing Stack");
-        for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {
-            String s = String.format("————>%s.%s(%s:%s)", stackTraceElement.getClassName(), stackTraceElement.getMethodName(), stackTraceElement.getFileName(), stackTraceElement.getLineNumber());
-            print(plugin, s);
-        }
-    }
+    // public static void printStackTrace(Plugin plugin) {
+    //     print(plugin, "————>Start Tracing Stack");
+    //     for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {
+    //         String s = String.format("————>%s.%s(%s:%s)", stackTraceElement.getClassName(), stackTraceElement.getMethodName(), stackTraceElement.getFileName(), stackTraceElement.getLineNumber());
+    //         print(plugin, s);
+    //     }
+    // }
 
-    public static void print(Plugin plugin, String s) {
-        if (plugin != null) {
-            plugin.getLogger().info(s);
-        } else {
-            System.out.println(s);
-        }
-    }
+    // public static void print(Plugin plugin, String s) {
+    //     if (plugin != null) {
+    //         plugin.getLogger().info(s);
+    //     } else {
+    //         System.out.println(s);
+    //     }
+    // }
 }

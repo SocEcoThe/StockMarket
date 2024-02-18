@@ -38,6 +38,7 @@ public class StockMarket extends CommonPlugin{
                 "`buyer` VARCHAR(255)," +
                 "`item` VARCHAR(255)," +
                 "`item_name` VARCHAR(255)," +
+                "`location` VARCHAR(50),"+
                 "`hash` TEXT," +
                 "`price` INT(11)," +
                 "`currency` VARCHAR(255)," +
@@ -57,6 +58,7 @@ public class StockMarket extends CommonPlugin{
                 "`source` VARCHAR(255)," +
                 "`create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                 "PRIMARY KEY (`id`)," +
+                "UNIQUE KEY `item_hash_unique` (`name`,`item`, `hash`(100))," +
                 "INDEX `name_index` (`name`)" +
                 ") ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='市场存储表';",
                 "CREATE TABLE IF NOT EXISTS `stock_trade` (" +
@@ -66,6 +68,7 @@ public class StockMarket extends CommonPlugin{
                 "`item` VARCHAR(255)," +
                 "`item_name` VARCHAR(255)," +
                 "`hash` TEXT," +
+                "`location` VARCHAR(50),"+
                 "`currency` VARCHAR(255)," +
                 "`price` INT(11)," +
                 "`trade_number` INT(11)," +
@@ -74,8 +77,20 @@ public class StockMarket extends CommonPlugin{
                 "PRIMARY KEY (`id`)," +
                 "INDEX `sell_index` (`sell`)," +
                 "INDEX `item_index` (`item`)," +
-                "INDEX `currency_index` (`currency`)" +
+                "INDEX `currency_index` (`currency`)," +
+                "INDEX `location_index` (`location`)" +
                 ") ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='市场交易表';",
+                "CREATE TABLE IF NOT EXISTS `stock_metadata` ("+
+                "`id` INT(11) NOT NULL AUTO_INCREMENT,"+
+                "`uuid` VARCHAR(36) NOT NULL,"+
+                "`location` VARCHAR(50),"+
+                "`item` VARCHAR(50),"+
+                "`hash` TEXT," +
+                "`item_name` VARCHAR(255)," +
+                "PRIMARY KEY (`id`)," +
+                "INDEX `uuid_index` (`uuid`)," +
+                "INDEX `location_index` (`location`)" +
+                ") ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='商店元数据表';",
             };
             for (String s : create) {
                 PreparedStatement preparedStatement = connection.prepareStatement(s);
@@ -94,7 +109,7 @@ public class StockMarket extends CommonPlugin{
     private void setupListeners(StockMarketManager manager) {
         if (Config.config.getShop_enable()) {
 //            getServer().getPluginManager().registerEvents(new StockMarketListener(this,manager), this);
-            getServer().getPluginManager().registerEvents(new StockMarketListener(this, manager), this);
+            getServer().getPluginManager().registerEvents(new StockMarketListener(this, manager,hikari), this);
         }
 
     }

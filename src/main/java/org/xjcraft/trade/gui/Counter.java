@@ -41,16 +41,17 @@ public class Counter implements InventoryHolder, StockMarketGui {
         for (int i = 0; i < Slot.BAG; i++) {
             if (i < trades.size()) {
                 Map<String, Object> trade = this.trades.get(i);
-                ItemStack itemStack = plugin.getManager().getItemStack((String) trade.get("item"),(String) trade.get("hash"));
+                ItemStack itemStack = plugin.getManager().getItemStack((String) trade.get("item"), (String) trade.get("hash"));
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 String s = StringUtil.applyPlaceHolder(MessageConfig.config.getTrade(), new HashMap<String, String>() {{
-                    put("operation",(boolean) trade.get("sell") ? "卖出" : "收购");
+                    put("operation", (Boolean) trade.get("sell") ? "卖出" : "收购");
                     put("type", plugin.getManager().getTranslate(itemStack));
-                    put("currency",(String) trade.get("currency"));
+                    put("subtype", (String) trade.get("hash"));
+                    put("currency", (String) trade.get("currency"));
                     put("time", trade.get("create_time").toString());
-                    put("id",trade.get("id") + "");
-                    put("number", trade.get("trade_number") + "");
-                    put("price", trade.get("price") + "");
+                    put("id", String.valueOf((int) trade.get("id")) + "");
+                    put("number", String.valueOf((int) trade.get("trade_number")) + "");
+                    put("price", String.valueOf((int) trade.get("price")) + "");
                 }});
                 itemMeta.setLore(Arrays.asList(s.split("\n")));
                 itemStack.setItemMeta(itemMeta);
@@ -59,7 +60,6 @@ public class Counter implements InventoryHolder, StockMarketGui {
                 inventory.setItem(i, null);
             }
         }
-
     }
 
 
@@ -69,7 +69,7 @@ public class Counter implements InventoryHolder, StockMarketGui {
     }
 
     @Override
-    public void onClick(Player player, int slot) {
+    public void onClick(Player player, int slot,Boolean viewDisplay,ItemStack itemStack) {
         switch (slot) {
             case Slot.BAG:
                 player.openInventory(new Bag(plugin, player).getInventory());

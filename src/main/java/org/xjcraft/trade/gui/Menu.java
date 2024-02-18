@@ -15,15 +15,17 @@ public class Menu implements InventoryHolder, StockMarketGui {
     private final String currency;
     private final ItemStack item;
     private Sign sign;
+    private String locString;
     Inventory inventory;
     private StockMarket plugin;
 
 
-    public Menu(StockMarket plugin, Player player, String currency, ItemStack item, Sign sign) {
+    public Menu(StockMarket plugin, Player player, String currency, String location,ItemStack item, Sign sign) {
         this.plugin = plugin;
         this.currency = currency;
         this.item = item;
         this.sign = sign;
+        this.locString=location;
         inventory = Bukkit.createInventory(this, 27, Config.config.getTitle_menu());
         inventory.setItem(Slot.buy,ItemUtil.getBuy());
         inventory.setItem(Slot.sell, ItemUtil.getSell());
@@ -38,13 +40,13 @@ public class Menu implements InventoryHolder, StockMarketGui {
     }
 
     @Override
-    public void onClick(Player player, int slot) {
+    public void onClick(Player player, int slot,Boolean viewDisplay,ItemStack itemStack) {
         switch (slot) {
             case Slot.buy:
-                player.openInventory(new Shop(plugin, player, currency, item, sign, Shop.ShopMode.BUY).getInventory());
+                player.openInventory(new Shop(plugin, player, currency,locString,item, sign, Shop.ShopMode.BUY).getInventory());
                 break;
             case Slot.sell:
-                player.openInventory(new Shop(plugin, player, currency, item, sign, Shop.ShopMode.SELL).getInventory());
+                player.openInventory(new Shop(plugin, player, currency,locString,item, sign, Shop.ShopMode.SELL).getInventory());
                 break;
             case Slot.bag:
                 player.openInventory(new Bag(plugin, player).getInventory());

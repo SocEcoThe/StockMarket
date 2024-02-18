@@ -28,11 +28,11 @@ public class StockMarketCommands extends CommonCommandExecutor {
      * 命令：/测试
      * 描述：为玩家开设测试商店。
      */
-    @RCommand("test")
-    public void test(Player player) {
-        Shop shop = new Shop(plugin, player, "GOV", new ItemStack(Material.LEATHER, 1), null, Shop.ShopMode.SIMPLE);
-        player.openInventory(shop.getInventory());
-    }
+    // @RCommand("test")
+    // public void test(Player player) {
+    //     Shop shop = new Shop(plugin, player, "GOV", new ItemStack(Material.LEATHER, 1), null, Shop.ShopMode.SIMPLE);
+    //     player.openInventory(shop.getInventory());
+    // }
 
     @RCommand(value = "label", sender = RCommand.Sender.PLAYER, desc = "获取手持物品的标签")
     public void label(CommandSender player) {

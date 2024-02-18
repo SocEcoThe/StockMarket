@@ -29,7 +29,7 @@ public class Bag implements InventoryHolder, StockMarketGui {
         inventory = Bukkit.createInventory(this, 54, Config.config.getTitle_bag());
         inventory.setItem(Slot.COLLECT_ALL, ItemUtil.getCollectAll());
         inventory.setItem(Slot.COUNTER, ItemUtil.getSwitchCounterButton());
-//        inventory.setItem(Slot.CLOSE, IconConfig.config.getClose());
+        // inventory.setItem(Slot.CLOSE, IconConfig.config.getClose());
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> update(player));
     }
 
@@ -42,14 +42,15 @@ public class Bag implements InventoryHolder, StockMarketGui {
         for (int i = 0; i < Slot.COLLECT_ALL; i++) {
             if (i < storage.size()) {
                 Map<String, Object> storage = this.storage.get(i);
-                ItemStack itemStack = plugin.getManager().getItemStack((String) storage.get("item"),(String) storage.get("hash"));
+                ItemStack itemStack = plugin.getManager().getItemStack((String) storage.get("item"), (String) storage.get("hash"));
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 String s = StringUtil.applyPlaceHolder(MessageConfig.config.getStorage(), new HashMap<String, String>() {{
-                    put("seller",(String) storage.get("source"));
+                    put("seller", (String)storage.get("name"));
                     put("type", plugin.getManager().getTranslate(itemStack));
+                    put("subtype", (String) storage.get("hash"));
                     put("time", storage.get("create_time").toString());
-                    put("id", storage.get("id") + "");
-                    put("number", storage.get("number") + "");
+                    put("id", String.valueOf((int) storage.get("id")) + "");
+                    put("number", String.valueOf((int) storage.get("number")) + "");
                 }});
                 itemMeta.setLore(Arrays.asList(s.split("\n")));
                 itemStack.setItemMeta(itemMeta);
@@ -58,11 +59,7 @@ public class Bag implements InventoryHolder, StockMarketGui {
                 inventory.setItem(i, null);
             }
         }
-//        if (storage.size() > 0) {
-//            inventory.setItem(52, ItemUtil.getCollectAll());
-//        }
     }
-
 
     @Override
     public Inventory getInventory() {
@@ -70,18 +67,18 @@ public class Bag implements InventoryHolder, StockMarketGui {
     }
 
     @Override
-    public void onClick(Player player, int slot) {
+    public void onClick(Player player, int slot, Boolean viewDisplay, ItemStack itemStack) {
         switch (slot) {
             case Slot.COLLECT_ALL:
-
-                if (storage.size() > 0) collectAll(player);
+                if (storage.size() > 0)
+                    collectAll(player);
                 break;
             case Slot.COUNTER:
                 player.openInventory(new Counter(plugin, player).getInventory());
                 break;
-//            case Slot.CLOSE:
-//                player.closeInventory();
-//                break;
+            // case Slot.CLOSE:
+            // player.closeInventory();
+            // break;
             default:
                 if (slot < storage.size() && slot >= 0) {
                     collect(player, slot);
@@ -128,19 +125,23 @@ public class Bag implements InventoryHolder, StockMarketGui {
     private void collectStorage(Player player, int slot) throws NumberFormatException {
 
         Map<String, Object> stockStorage = storage.get(slot);
-        ItemStack itemStack = plugin.getManager().getItemStack((String) stockStorage.get("item"),(String) stockStorage.get("hash"));
-        Integer number =(Integer) stockStorage.get("number");
+        ItemStack itemStack = plugin.getManager().getItemStack((String) stockStorage.get("item"),
+                (String) stockStorage.get("hash"));
+        Integer number = (Integer) stockStorage.get("number");
         itemStack.setAmount(number);
         int stacks = (int) Math.ceil(number.doubleValue() / itemStack.getMaxStackSize());
         int i = ItemUtil.countEmptySlot(player);
         if (i < stacks) {
-            player.sendMessage(StringUtil.applyPlaceHolder(MessageConfig.config.getSlotNotEnough(), new HashMap<String, String>() {{
-                put("slot", stacks + "");
-            }}));
+            player.sendMessage(
+                    StringUtil.applyPlaceHolder(MessageConfig.config.getSlotNotEnough(), new HashMap<String, String>() {
+                        {
+                            put("slot", stacks + "");
+                        }
+                    }));
             throw new NumberFormatException();
         }
 
-        plugin.getManager().delete("stock_storage",(int) stockStorage.get("id"));
+        plugin.getManager().delete("stock_storage", (int) stockStorage.get("id"));
         List<ItemStack> itemStacks = new ArrayList<ItemStack>();
         itemStacks.add(itemStack);
         while (itemStacks.get(0).getAmount() > itemStack.getMaxStackSize()) {
@@ -149,12 +150,15 @@ public class Bag implements InventoryHolder, StockMarketGui {
             clone.setAmount(clone.getMaxStackSize());
             itemStacks.add(clone);
         }
-        player.getInventory().addItem(itemStacks.toArray(new ItemStack[]{}));
-        player.sendMessage(StringUtil.applyPlaceHolder(MessageConfig.config.getReceive(), new HashMap<String, String>() {{
-            put("player",(String) stockStorage.get("source"));
-            put("number", stockStorage.get("number") + "");
-            put("type", stockStorage.get("item_name") + "");
-        }}));
+        player.getInventory().addItem(itemStacks.toArray(new ItemStack[] {}));
+        player.sendMessage(
+                StringUtil.applyPlaceHolder(MessageConfig.config.getReceive(), new HashMap<String, String>() {
+                    {
+                        put("player", (String) stockStorage.get("source"));
+                        put("number", stockStorage.get("number") + "");
+                        put("type", stockStorage.get("item_name") + "");
+                    }
+                }));
     }
 
     interface Slot {

@@ -1,5 +1,6 @@
 package org.xjcraft.trade.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.banner.Pattern;
@@ -7,6 +8,7 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.xjcraft.trade.config.IconConfig;
@@ -78,7 +80,6 @@ public class ItemUtil {
         }
         return null;
     }
-
 
     public static ItemStack getNumberStack(int i) {
 
@@ -210,7 +211,6 @@ public class ItemUtil {
         return Highest;
     }
 
-
     public static ItemStack button(Material shopType, short durability, String info) {
         ItemStack button = button(shopType, info);
         button.setDurability(durability);
@@ -228,13 +228,14 @@ public class ItemUtil {
         ItemMeta im;
         im = temp.getItemMeta();
         im.setDisplayName(info);
-//        im.setLore(null);
+        // im.setLore(null);
         temp.setItemMeta(im);
         return temp;
     }
 
     public static ItemStack getStackButton(ItemStack itemStack, Boolean stack, String displayName, String... info) {
-        ItemStack temp = new ItemStack(itemStack.getType(), stack ? itemStack.getMaxStackSize() : 1, itemStack.getDurability());
+        ItemStack temp = new ItemStack(itemStack.getType(), stack ? itemStack.getMaxStackSize() : 1,
+                itemStack.getDurability());
 
         ItemMeta im;
         im = temp.getItemMeta();
@@ -242,7 +243,7 @@ public class ItemUtil {
             im.setDisplayName(displayName);
         }
         im.setLore(Arrays.asList(info));
-//        im.setLore(null);
+        // im.setLore(null);
         temp.setItemMeta(im);
         return temp;
     }
@@ -338,6 +339,20 @@ public class ItemUtil {
         return getItemNumber(player, itemStack);
     }
 
+    public static ItemStack removeShelfLife(ItemStack item) {
+        item = item.clone();
+
+        ItemMeta itemMeta = item.getItemMeta();
+
+        List<String> lore = new ArrayList<>(itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>());
+        lore.removeIf(line -> line.startsWith("保质期"));
+
+        itemMeta.setLore(lore);
+        item.setItemMeta(itemMeta);
+
+        return item;
+    }
+
     public static int getItemNumber(Player player, ItemStack itemStack) {
         ItemStack[] bag = player.getInventory().getStorageContents();
         int itemCount = 0;
@@ -346,7 +361,7 @@ public class ItemUtil {
             if (i != null) {
                 int amount = i.getAmount();
                 itemStack.setAmount(amount);
-                if (isEquals(i, itemStack)) {
+                if (isEquals(removeShelfLife(i), removeShelfLife(itemStack))) {
                     itemCount = itemCount + amount;
                 }
             }
@@ -358,7 +373,8 @@ public class ItemUtil {
         return removeItem(player, material, (short) 0, number);
     }
 
-    public static ItemStack[] removeItem(Player player, Material material, short durability, int number) throws Exception {
+    public static ItemStack[] removeItem(Player player, Material material, short durability, int number)
+            throws Exception {
         return removeItem(player, new ItemStack(material, 1, durability), number);
     }
 
@@ -386,15 +402,42 @@ public class ItemUtil {
             }
         }
         player.getInventory().setStorageContents(bag);
-//        if (number != 0) {
-//            throw new Exception("not enough items!");
-//        }
+        // if (number != 0) {
+        // throw new Exception("not enough items!");
+        // }
         return bag;
     }
 
+    public static void removeBagItem(Player player, ItemStack itemStack, int number) {
+        PlayerInventory inventory = player.getInventory();
+        ItemStack[] bag = inventory.getStorageContents();
+
+        for (int i = 0; i < bag.length; i++) {
+            if (number <= 0)
+                break;
+
+            ItemStack item = bag[i];
+
+            if (item != null && removeShelfLife(item).isSimilar(removeShelfLife(itemStack))) {
+                int itemAmount = item.getAmount();
+
+                if (itemAmount > number) {
+                    item.setAmount(itemAmount - number);
+                    bag[i] = item;
+                } else {
+                    number -= itemAmount;
+                    bag[i] = null;
+                }
+            }
+        }
+        inventory.setStorageContents(bag); // 更新背包内容
+    }
+
     public static boolean isEquals(ItemStack a, ItemStack b) {
-        if (a == null && b == null) return true;
-        if (a == null || b == null) return false;
+        if (a == null && b == null)
+            return true;
+        if (a == null || b == null)
+            return false;
         return a.getType() == b.getType() && hashcode(a.getItemMeta()).equals(hashcode(b.getItemMeta()));
     }
 
@@ -435,17 +478,18 @@ public class ItemUtil {
     }
 
     public static boolean hasEmptySlot(Player player) {
-//        System.out.println("inv:"+player.getInventory().firstEmpty());
+        // System.out.println("inv:"+player.getInventory().firstEmpty());
 
         return (player.getInventory().firstEmpty() != -1);
         /*
-        ItemStack[] itemStacks = player.getInventory().getContents();
-        for (ItemStack itemStack : itemStacks) {
-            if (itemStack == null) {
-                return true;
-            }
-        }
-        return false;*/
+         * ItemStack[] itemStacks = player.getInventory().getContents();
+         * for (ItemStack itemStack : itemStacks) {
+         * if (itemStack == null) {
+         * return true;
+         * }
+         * }
+         * return false;
+         */
     }
 
     public static int countEmptySlot(Player player) {
@@ -508,7 +552,6 @@ public class ItemUtil {
         return temp;
     }
 
-
     public static ItemStack getInputButton() {
         ItemStack temp = new ItemStack(Material.FEATHER, 1);
         ItemMeta im;
@@ -520,7 +563,8 @@ public class ItemUtil {
 
     public static Integer hashcode(ConfigurationSerializable itemMeta) {
         int hashcode = 0;
-        if (itemMeta == null) return hashcode;
+        if (itemMeta == null)
+            return hashcode;
         Map<String, Object> map = itemMeta.serialize();
         ArrayList<String> list = new ArrayList<>(map.keySet());
         Collections.sort(list);

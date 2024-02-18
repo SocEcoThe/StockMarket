@@ -30,19 +30,17 @@
             <!--                        包含依赖打包-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
-                    </execution>
-                </executions>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>org.EMAC.listener.TraceTable</mainClass>
+                        </manifest>
+                    </archive>
+                    <outputDirectory>E:\Desktop\server-f--\plugins</outputDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -70,7 +68,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>[1.18.2-R0.1-SNAPSHOT,)</version>
+            <version>1.18.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -104,5 +102,4 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-
 </project>
